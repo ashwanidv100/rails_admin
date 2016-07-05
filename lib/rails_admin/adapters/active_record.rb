@@ -94,6 +94,7 @@ module RailsAdmin
           @statements = []
           @values = []
           @tables = []
+          @includes = []
           @scope = scope
         end
 
@@ -111,11 +112,14 @@ module RailsAdmin
             table, column = column_infos[:column].split('.')
             @tables.push(table) if column
           end
+
+          @includes.push(field.name) if field.association?
         end
 
         def build
           scope = @scope.where(@statements.join(' OR '), *@values)
           scope = scope.references(*(@tables.uniq)) if @tables.any?
+          scope = scope.includes(*(@includes.uniq)) if @includes.any?
           scope
         end
       end
